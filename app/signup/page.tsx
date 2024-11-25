@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
 import { useState } from 'react'
@@ -23,7 +24,7 @@ export default function Signup() {
     } catch {
       setError('Failed to create an account')
     }
-}
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 via-white to-purple-100 flex items-center justify-center">
@@ -60,4 +61,3 @@ export default function Signup() {
     </div>
   )
 }
-
