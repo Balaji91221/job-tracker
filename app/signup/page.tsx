@@ -20,10 +20,10 @@ export default function Signup() {
     try {
       await createUserWithEmailAndPassword(auth, email, password)
       router.push('/')
-    } catch (error) {
+    } catch {
       setError('Failed to create an account')
     }
-  }
+}
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 via-white to-purple-100 flex items-center justify-center">
