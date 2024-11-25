@@ -17,6 +17,7 @@ import { deleteApplication } from "@/app/actions";
 import Link from "next/link";
 import { database, auth } from "@/lib/firebase";
 import { ref, onValue, off, DataSnapshot } from "firebase/database";
+import { motion } from "framer-motion";
 
 export function ApplicationsTable({
   applications: initialApplications = [],
@@ -51,7 +52,7 @@ export function ApplicationsTable({
         } else {
           setApplications([]);
         }
-        setError(null); // Clear previous errors, if any
+        setError(null);
       } catch (err) {
         setError("Failed to process application data.");
         console.error("Data processing error:", err);
@@ -60,20 +61,17 @@ export function ApplicationsTable({
       }
     };
 
-    // Set up listener
     onValue(applicationsRef, handleData, (err) => {
       setError("Failed to fetch applications data.");
       console.error("Firebase error:", err);
       setLoading(false);
     });
 
-    // Cleanup listener on component unmount
     return () => {
       off(applicationsRef, "value", handleData);
     };
   }, []);
 
-  // Handle delete action
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this application?")) {
       try {
@@ -87,7 +85,11 @@ export function ApplicationsTable({
   };
 
   if (loading) {
-    return <p className="text-center">Loading applications...</p>;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+      </div>
+    );
   }
 
   if (error) {
@@ -95,27 +97,32 @@ export function ApplicationsTable({
   }
 
   return (
-    <div className="rounded-md border bg-white overflow-hidden">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="rounded-lg border border-gray-200 bg-white overflow-hidden shadow-md"
+    >
       <Table>
         <TableHeader>
-          <TableRow>
-            <TableHead>Company</TableHead>
-            <TableHead>Employee</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Actions</TableHead>
+          <TableRow className="bg-gray-50">
+            <TableHead className="font-semibold text-indigo-800">Company</TableHead>
+            <TableHead className="font-semibold text-indigo-800">Employee</TableHead>
+            <TableHead className="font-semibold text-indigo-800">Status</TableHead>
+            <TableHead className="font-semibold text-indigo-800">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {applications.length > 0 ? (
             applications.map((application) => (
-              <TableRow key={application.id}>
+              <TableRow key={application.id} className="hover:bg-gray-50 transition-colors duration-150">
                 <TableCell>
-                  <div>{application.companyName}</div>
+                  <div className="font-medium">{application.companyName}</div>
                   <a
                     href={application.companyWebsite}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-blue-600 hover:underline"
+                    className="text-sm text-indigo-600 hover:text-indigo-800 transition-colors duration-150"
                   >
                     {application.companyWebsite}
                   </a>
@@ -128,27 +135,24 @@ export function ApplicationsTable({
                       href={application.linkedinProfile}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-blue-600 hover:underline"
+                      className="text-sm text-indigo-600 hover:text-indigo-800 transition-colors duration-150"
                     >
                       LinkedIn
                     </a>
                   )}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={application.approached ? "secondary" : "default"}>
+                  <Badge variant={application.approached ? "secondary" : "default"} className="mr-2">
                     {application.approached ? "Approached" : "Not Approached"}
                   </Badge>
-                  <Badge
-                    variant={application.heardBack ? "secondary" : "default"}
-                    className="ml-2"
-                  >
+                  <Badge variant={application.heardBack ? "secondary" : "default"}>
                     {application.heardBack ? "Heard Back" : "No Response"}
                   </Badge>
                 </TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
                     <Link href={`/edit/${application.id}`}>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" className="text-indigo-600 hover:text-indigo-800 hover:border-indigo-800 transition-colors duration-150">
                         Edit
                       </Button>
                     </Link>
@@ -156,6 +160,7 @@ export function ApplicationsTable({
                       variant="destructive"
                       size="sm"
                       onClick={() => handleDelete(application.id)}
+                      className="bg-red-500 hover:bg-red-600 transition-colors duration-150"
                     >
                       Delete
                     </Button>
@@ -165,13 +170,13 @@ export function ApplicationsTable({
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={4} className="text-center">
-                No applications found.
+              <TableCell colSpan={4} className="text-center py-8 text-gray-500">
+                No applications found. Start by adding a new application!
               </TableCell>
             </TableRow>
           )}
         </TableBody>
       </Table>
-    </div>
+    </motion.div>
   );
 }
