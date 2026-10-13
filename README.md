@@ -46,11 +46,12 @@ flowchart LR
 
 - [`app/`](app): dashboard, account, add, and edit pages.
 - [`app/actions.ts`](app/actions.ts): application helpers and authenticated requests.
-- [`pages/api/`](pages/api): HTTP endpoints.
+- [`app/api/job-applications/`](app/api/job-applications): active application HTTP endpoints.
+- [`pages/api/`](pages/api): legacy application endpoints.
 - [`lib/`](lib): Firebase configuration and supporting code.
 
 ## Current integration boundary
 
-The code uses different application path conventions: helpers request `/api/job-applications` and read `job-applications/...`, while the included `pages/api/applications` route uses `applications/...`. Reconcile these paths and the required request fields before relying on the complete create/edit/delete workflow. The README describes the available implementation; it does not claim that these integration gaps have been fixed.
+The active flow uses `/api/job-applications` for creation and `/api/job-applications/:id` for deletion. Reading, table subscriptions, and the edit helper access `job-applications/<uid>/...` directly through the Firebase client SDK, so the Realtime Database rules must permit the authenticated user's operations. The separate `pages/api/applications` handlers use an older `applications/...` convention; they are not the endpoints called by the current helpers.
 
 For a production bundle, use `npm run build` followed by `npm start` after completing service configuration.
